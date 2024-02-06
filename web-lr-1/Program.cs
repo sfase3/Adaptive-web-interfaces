@@ -1,94 +1,111 @@
 ﻿using System;
-using System.Collections;
-using System.Diagnostics;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 
 class Program
 {
-    static void Main()
+    static async Task Main()
     {
-        // 1 System.Collections
-        DoCollection();
+        // Виклик методів для роботи з класом Thread
+        ThreadExample();
 
-        // 2 Робота з датами використовуючи System.DateTime
-        ManipulateDates();
+        // Виклик методів для роботи з Async - Await
+        await AsyncAwaitExample();
 
-        // 3 потоки з System.Threading
-        PerformMultithreading();
+        // Виклик асинхронного методу з використанням GetAsync
+        await GetAsyncExample();
 
-        // 4 діагностика з System.Diagnostics
-        ShowProcessInfo();
-
-        // 5 інтернет операції з System.Net
-         DownloadWebPage("https://uk.javascript.info/");
         Console.ReadLine();
     }
 
-    // System.Collections
-    static void DoCollection()
+    // Приклад роботи з класом Thread
+    static void ThreadExample()
     {
-        ArrayList list = new ArrayList();
-        list.Add("Hello");
-        list.Add("world");
-        list.Add("its");
-        list.Add("time");
-        list.Add("to");
-        list.Add("play");
-        list.Add("with");
-        list.Add("me");
+        Console.WriteLine("Початок роботи з класом Thread");
 
-        foreach (var item in list)
+        Thread thread1 = new Thread(ThreadMethod1);
+        Thread thread2 = new Thread(ThreadMethod2);
+
+        thread1.Start();
+        thread2.Start();
+
+        thread1.Join();
+        thread2.Join();
+
+        Console.WriteLine("Завершено роботу з класом Thread");
+    }
+
+    static void ThreadMethod1()
+    {
+        Console.WriteLine("ThreadMethod1 почав виконання");
+        Thread.Sleep(3000);
+        Console.WriteLine("ThreadMethod1 завершив виконання");
+    }
+
+    static void ThreadMethod2()
+    {
+        Console.WriteLine("ThreadMethod2 почав виконання");
+        Thread.Sleep(2000);
+        Console.WriteLine("ThreadMethod2 завершив виконання");
+    }
+
+    // Приклад роботи з Async - Await
+    static async Task AsyncAwaitExample()
+    {
+        Console.WriteLine("Початок роботи з Async - Await");
+
+        Console.WriteLine("Виклик асинхронного методу 1");
+        await AsyncMethod1();
+
+        Console.WriteLine("Виклик асинхронного методу 2");
+        await AsyncMethod2();
+
+        Console.WriteLine("Завершено роботу з Async - Await");
+    }
+
+    static async Task AsyncMethod1()
+    {
+        Console.WriteLine("AsyncMethod1 почав виконання");
+        await Task.Delay(3000);
+        Console.WriteLine("AsyncMethod1 завершив виконання");
+    }
+
+    static async Task AsyncMethod2()
+    {
+        Console.WriteLine("AsyncMethod2 почав виконання");
+        await Task.Delay(2000);
+        Console.WriteLine("AsyncMethod2 завершив виконання");
+    }
+
+    // Приклад роботи з GetAsync
+    static async Task GetAsyncExample()
+    {
+        Console.WriteLine("Початок роботи з GetAsync");
+
+        string url = "https://jsonplaceholder.typicode.com/todos/1";
+        string result = await GetAsync(url);
+
+        Console.WriteLine($"Отримані дані: {result}");
+
+        Console.WriteLine("Завершено роботу з GetAsync");
+    }
+
+    // Асинхронний метод для отримання даних за допомогою HttpClient
+    static async Task<string> GetAsync(string url)
+    {
+        using (HttpClient client = new HttpClient())
         {
-            Console.WriteLine(item);
-        }
-    }
+            HttpResponseMessage response = await client.GetAsync(url);
 
-    // System.DateTime
-    static void ManipulateDates()
-    {
-        DateTime currentDate = DateTime.Now;
-        Console.WriteLine("Теперешня дата: " + currentDate);
-        DateTime futureDate = currentDate.AddDays(12);
-        Console.WriteLine("Дата через 12 днів: " + futureDate);
-    }
-
-    // System.Threading
-    static void PerformMultithreading()
-    {
-        Thread myThread = new Thread(MyThreadMethod);
-        myThread.Start();
-
-        for (int i = 0; i < 5; i++)
-        {
-            Console.WriteLine($"Основний потік: {i}");
-            Thread.Sleep(1000);
-        }
-    }
-
-    static void MyThreadMethod()
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            Console.WriteLine($"Вторинний потік: {i}");
-            Thread.Sleep(1500);
-        }
-    }
-
-    // System.Diagnostics
-    static void ShowProcessInfo()
-    {
-        Process currentProcess = Process.GetCurrentProcess();
-        Console.WriteLine("Ідентифікатор процесу: " + currentProcess.Id);
-        Console.WriteLine("Назва процесу: " + currentProcess.ProcessName);
-    }
-
-    // System.Net
-    static void DownloadWebPage(string url)
-    {
-        using (System.Net.WebClient client = new System.Net.WebClient())
-        {
-            string content = client.DownloadString(url);
-            Console.WriteLine("Веб сторінка складає: " + content.Length + " символів");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                return $"Помилка отримання даних. Код статусу: {response.StatusCode}";
+            }
         }
     }
 }
