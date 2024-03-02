@@ -1,111 +1,47 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reflection;
+using LR4.Music;
 
 class Program
 {
-    static async Task Main()
+    static void Main(string[] args)
     {
-        // Виклик методів для роботи з класом Thread
-        ThreadExample();
+        Music song1 = new Music(1, "Bohemian Rhapsody", true, 4.5, 'A');
+        Music song2 = new Music(2, "Stairway to Heaven", false, 4.8, 'A');
 
-        // Виклик методів для роботи з Async - Await
-        await AsyncAwaitExample();
+        Console.WriteLine(song1.GetFullRating());
+        Console.WriteLine(song2.GetInfo(song1));
 
-        // Виклик асинхронного методу з використанням GetAsync
-        await GetAsyncExample();
+        Type musicType = typeof(Music);
+        TypeInfo musicTypeInfo = musicType.GetTypeInfo();
 
-        Console.ReadLine();
-    }
+        Console.WriteLine($"Type Name: {musicType.Name}");
 
-    // Приклад роботи з класом Thread
-    static void ThreadExample()
-    {
-        Console.WriteLine("Початок роботи з класом Thread");
-
-        Thread thread1 = new Thread(ThreadMethod1);
-        Thread thread2 = new Thread(ThreadMethod2);
-
-        thread1.Start();
-        thread2.Start();
-
-        thread1.Join();
-        thread2.Join();
-
-        Console.WriteLine("Завершено роботу з класом Thread");
-    }
-
-    static void ThreadMethod1()
-    {
-        Console.WriteLine("ThreadMethod1 почав виконання");
-        Thread.Sleep(3000);
-        Console.WriteLine("ThreadMethod1 завершив виконання");
-    }
-
-    static void ThreadMethod2()
-    {
-        Console.WriteLine("ThreadMethod2 почав виконання");
-        Thread.Sleep(2000);
-        Console.WriteLine("ThreadMethod2 завершив виконання");
-    }
-
-    // Приклад роботи з Async - Await
-    static async Task AsyncAwaitExample()
-    {
-        Console.WriteLine("Початок роботи з Async - Await");
-
-        Console.WriteLine("Виклик асинхронного методу 1");
-        await AsyncMethod1();
-
-        Console.WriteLine("Виклик асинхронного методу 2");
-        await AsyncMethod2();
-
-        Console.WriteLine("Завершено роботу з Async - Await");
-    }
-
-    static async Task AsyncMethod1()
-    {
-        Console.WriteLine("AsyncMethod1 почав виконання");
-        await Task.Delay(3000);
-        Console.WriteLine("AsyncMethod1 завершив виконання");
-    }
-
-    static async Task AsyncMethod2()
-    {
-        Console.WriteLine("AsyncMethod2 почав виконання");
-        await Task.Delay(2000);
-        Console.WriteLine("AsyncMethod2 завершив виконання");
-    }
-
-    // Приклад роботи з GetAsync
-    static async Task GetAsyncExample()
-    {
-        Console.WriteLine("Початок роботи з GetAsync");
-
-        string url = "https://jsonplaceholder.typicode.com/todos/1";
-        string result = await GetAsync(url);
-
-        Console.WriteLine($"Отримані дані: {result}");
-
-        Console.WriteLine("Завершено роботу з GetAsync");
-    }
-
-    // Асинхронний метод для отримання даних за допомогою HttpClient
-    static async Task<string> GetAsync(string url)
-    {
-        using (HttpClient client = new HttpClient())
+        Console.WriteLine("\nMembers:");
+        foreach (MemberInfo member in musicTypeInfo.GetMembers())
         {
-            HttpResponseMessage response = await client.GetAsync(url);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                return $"Помилка отримання даних. Код статусу: {response.StatusCode}";
-            }
+            Console.WriteLine($"Name: {member.Name}({member.ReflectedType}), {member.MemberType} ");
         }
+
+        Console.WriteLine("\nFields:");
+        foreach (FieldInfo fieldInfo in musicTypeInfo.DeclaredFields)
+        {
+            Console.WriteLine($"Name: {fieldInfo.Name}({fieldInfo.Attributes}), FieldType: {fieldInfo.FieldType}");
+        }
+
+        Console.WriteLine("\nMethods:");
+        foreach (MethodInfo methodInfo in musicTypeInfo.DeclaredMethods)
+        {
+            Console.WriteLine($"Name: {methodInfo.Name}({methodInfo.Attributes}), MethodType: {methodInfo.ReturnType}");
+        }
+
+        Console.WriteLine("\nReflection:");
+        MethodInfo reflectionMethod = musicType.GetMethod("WriteInfo");
+        if (reflectionMethod != null)
+        {
+            Music song3 = new Music(3, "Highway to hell", true, 14.5, 'B');
+            Music song4 = new Music(4, "Coco jambo", false, 24.8, 'C');
+            reflectionMethod.Invoke(song4, new object[] { song3 });
+        }
+        Console.ReadLine();
     }
 }
