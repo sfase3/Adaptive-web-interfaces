@@ -35,12 +35,12 @@ class Program
         }
 
         Console.WriteLine("\nReflection:");
-        MethodInfo reflectionMethod = musicType.GetMethod("WriteInfo");
+        MethodInfo reflectionMethod = musicType.GetMethod("GetInfo");
         if (reflectionMethod != null)
         {
             Music song3 = new Music(3, "Highway to hell", true, 14.5, 'B');
             Music song4 = new Music(4, "Coco jambo", false, 24.8, 'C');
-            reflectionMethod.Invoke(song4, new object[] { song3 });
+            Console.WriteLine(reflectionMethod.Invoke(song4, new object[] { song3 }));
         }
         Console.ReadLine();
     }

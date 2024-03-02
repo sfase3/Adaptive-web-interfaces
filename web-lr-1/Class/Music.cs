@@ -36,11 +36,5 @@ namespace LR4.Music
             return $"{Name} {isListenedMessage}, {preferToListenMessage}. You also can listen to {music.Name}";
         }
 
-        public void WriteInfo(Music music)
-        {
-            string isListenedMessage = IsListened ? "is listened" : "is not listened";
-            string preferToListenMessage = IsListened ? "listen to the next one" : "listen to it at any time you want";
-            Console.WriteLine($"{Name} {isListenedMessage}, {preferToListenMessage}. You also can listen to {music.Name}");
-        }
     }
 }
