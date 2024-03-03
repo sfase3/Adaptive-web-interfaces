@@ -1,47 +1,77 @@
 ﻿using System.Reflection;
-using LR4.Music;
+using LR1.Services;
 
-class Program
+namespace LR1
 {
-    static void Main(string[] args)
+    class Program
     {
-        Music song1 = new Music(1, "Bohemian Rhapsody", true, 4.5, 'A');
-        Music song2 = new Music(2, "Stairway to Heaven", false, 4.8, 'A');
-
-        Console.WriteLine(song1.GetFullRating());
-        Console.WriteLine(song2.GetInfo(song1));
-
-        Type musicType = typeof(Music);
-        TypeInfo musicTypeInfo = musicType.GetTypeInfo();
-
-        Console.WriteLine($"Type Name: {musicType.Name}");
-
-        Console.WriteLine("\nMembers:");
-        foreach (MemberInfo member in musicTypeInfo.GetMembers())
+        static async Task Main(string[] args)
         {
-            Console.WriteLine($"Name: {member.Name}({member.ReflectedType}), {member.MemberType} ");
-        }
+            const string BaseApiUrl = "https://api.languagetool.org/v2";
+            var client = new HttpClient();
+            var apiClient = new ApiClient(client);
 
-        Console.WriteLine("\nFields:");
-        foreach (FieldInfo fieldInfo in musicTypeInfo.DeclaredFields)
-        {
-            Console.WriteLine($"Name: {fieldInfo.Name}({fieldInfo.Attributes}), FieldType: {fieldInfo.FieldType}");
-        }
+            // Приклад використання GET методу
+            var textToCheck = "I hav a problem";
+            var language = "en-US";
+            var apiUrl = $"{BaseApiUrl}/check?text={textToCheck}&language={language}";
+            var getResult = await apiClient.Get(apiUrl);
 
-        Console.WriteLine("\nMethods:");
-        foreach (MethodInfo methodInfo in musicTypeInfo.DeclaredMethods)
-        {
-            Console.WriteLine($"Name: {methodInfo.Name}({methodInfo.Attributes}), MethodType: {methodInfo.ReturnType}");
-        }
+            if (getResult.HttpStatusCode == 200)
+            {
+                Console.WriteLine($"Message: {getResult.Message}");
+                Console.WriteLine($"Status Code: {getResult.HttpStatusCode}");
+                Console.WriteLine($"Data: {getResult.Data[0]}");
+            }
+            else
+            {
+                Console.WriteLine($"Error: {getResult.Message}");
+            }
 
-        Console.WriteLine("\nReflection:");
-        MethodInfo reflectionMethod = musicType.GetMethod("GetInfo");
-        if (reflectionMethod != null)
-        {
-            Music song3 = new Music(3, "Highway to hell", true, 14.5, 'B');
-            Music song4 = new Music(4, "Coco jambo", false, 24.8, 'C');
-            Console.WriteLine(reflectionMethod.Invoke(song4, new object[] { song3 }));
+            // Приклад використання POST методу
+            var postData = "text=I have a problem&language=en-US"; // Параметри для POST запиту
+            var postUrl = $"{BaseApiUrl}/check";
+            var postResult = await apiClient.Post(postUrl, postData);
+
+            if (postResult.HttpStatusCode == 200)
+            {
+                Console.WriteLine($"Message: {postResult.Message}");
+                Console.WriteLine($"Status Code: {postResult.HttpStatusCode}");
+                Console.WriteLine($"Data: {postResult.Data[0]}");
+            }
+            else
+            {
+                Console.WriteLine($"Error: {postResult.Message}");
+            }
+
+
+            var languagesUrl = $"{BaseApiUrl}/languages";
+            var languagesResult = await apiClient.Get(languagesUrl);
+
+            if (languagesResult.HttpStatusCode == 200)
+            {
+                Console.WriteLine($"Message: {languagesResult.Message}");
+                Console.WriteLine($"Status Code: {languagesResult.HttpStatusCode}");
+                Console.WriteLine("Available languages:");
+                foreach (var lang in languagesResult.Data)
+                {
+                    Console.WriteLine(lang);
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Error: {languagesResult.Message}");
+            }
+
+            // Виклик, що спричинить помилку з кодом 500
+            var invalidUrl = $"{BaseApiUrl}/invalid_endpoint";
+            var invalidResult = await apiClient.Get(invalidUrl);
+            Console.WriteLine(invalidResult.HttpStatusCode);
+            if (invalidResult.HttpStatusCode == 500)
+            {
+                Console.WriteLine($"Error: {invalidResult.Message}");
+            }
+            Console.ReadLine();
         }
-        Console.ReadLine();
     }
 }

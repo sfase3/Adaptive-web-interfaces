@@ -9,9 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Class\" />
+    <None Remove="Services\" />
+    <None Remove="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Class\" />
+    <Folder Include="Services\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+
   </ItemGroup>
 </Project>
